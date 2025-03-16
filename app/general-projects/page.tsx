@@ -20,6 +20,8 @@ const Page = () => {
             const associated = await getProjectAssocietedwithUser(email)
             setAssociatedProjects(associated)
         } catch (error) {
+            console.log(error);
+            
             toast.error("Erreur lors du chargement des projets:");
         }
     }
@@ -43,6 +45,8 @@ const Page = () => {
                 toast.error('Il manque le code du projet');
             }
         } catch (error) {
+            console.log(error);
+            
             toast.error("Code invalide ou vous appartenez déjà au projet");
         }
     }

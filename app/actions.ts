@@ -1,9 +1,8 @@
 "use server"
 
-import prisma from "@/lib/prisma";
-import { error } from "console";
+
 import { randomBytes } from "crypto";
-import { Thermometer } from "lucide-react";
+import prisma from "./prisma";
 
 
 export async function checkAndAddUser(email: string, name: string) {
@@ -90,9 +89,9 @@ export async function getProjectsCreatedByUser(email: string) {
             }
         })
 
-        const formattedProjects = projects.map((project) => ({
+        const formattedProjects = projects.map((project:any) => ({
             ...project,
-            users: project.users.map((userEntry) => userEntry.user)
+            users: project.users.map((userEntry:any) => userEntry.user)
         }))
 
         return formattedProjects
@@ -193,9 +192,9 @@ export async function getProjectAssocietedwithUser(email: string) {
 
         })
 
-        const formattedProjects = projects.map((project) => ({
+        const formattedProjects = projects.map((project:any) => ({
             ...project,
-            users: project.users.map((userEntry) => userEntry.user)
+            users: project.users.map((userEntry:any) => userEntry.user)
         }))
 
         return formattedProjects
@@ -261,7 +260,7 @@ export async function getProjectUser(idProject: string) {
 
         })
 
-        const users = projectWithUsers?.users.map((projectUser => projectUser.user)) || []
+        const users = projectWithUsers?.users.map(((projectUser:any) => projectUser.user)) || []
         return users
 
     } catch (error) {

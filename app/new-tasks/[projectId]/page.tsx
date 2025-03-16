@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { CreateTask, getProjectinfo, getProjectUser } from "@/app/actions";
 import AssignTask from "@/app/components/AssignTask";
 import Wrapper from "@/app/components/Wrapper";
@@ -7,26 +7,23 @@ import { useUser } from "@clerk/nextjs";
 import { User } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ReactQuill from "react-quill-new";
-import "react-quill-new/dist/quill.snow.css"
+import "react-quill-new/dist/quill.snow.css";
 import { toast } from "react-toastify";
 
-
-
-const page = ({ params }: { params: Promise<{ projectId: string }> }) => {
-
+const Page = ({ params }: { params: Promise<{ projectId: string }> }) => {
     const modules = {
         toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'font': [] }],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'color': [] }, { 'background': [] }],
-            ['blockquote', 'code-block'],
-            ['link', 'image'],
-            ['clean']
-        ]
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ font: [] }],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ color: [] }, { background: [] }],
+            ["blockquote", "code-block"],
+            ["link", "image"],
+            ["clean"],
+        ],
     };
 
     const { user } = useUser();
@@ -34,108 +31,103 @@ const page = ({ params }: { params: Promise<{ projectId: string }> }) => {
     const [projectId, setProjectId] = useState("");
     const [project, setProject] = useState<Project | null>(null);
     const [usersProject, setUsersProject] = useState<User[]>([]);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null)
-    const [dueDate, setDueDate] = useState<Date | null>(null)
-    const [name, setName] = useState("")
-    const [description, setDescription] = useState("")
-    const rooter = useRouter()
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [dueDate, setDueDate] = useState<Date | null>(null);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const router = useRouter();
 
-    const fetchInfos = async (projectId: string) => {
+    const fetchInfos = useCallback(async (projectId: string) => {
         try {
-            const project = await getProjectinfo(projectId, true)
-            setProject(project)
+            const project = await getProjectinfo(projectId, true);
+            setProject(project);
 
-            const associatedUsers = await getProjectUser(projectId)
-            setUsersProject(associatedUsers)
-
+            const associatedUsers = await getProjectUser(projectId);
+            setUsersProject(associatedUsers);
         } catch (error) {
-            console.error('Erreur lors du chargement du projet:', error);
+            console.error("Erreur lors du chargement du projet:", error);
         }
-    }
+    }, []);
 
     useEffect(() => {
         const getId = async () => {
             const resolvedParams = await params;
-            setProjectId(resolvedParams.projectId)
-            fetchInfos(resolvedParams.projectId)
-        }
-        getId()
-
-    }, [params])
+            setProjectId(resolvedParams.projectId);
+            fetchInfos(resolvedParams.projectId);
+        };
+        getId();
+    }, [params, fetchInfos]);
 
     const handleUserSelect = (user: User) => {
-        setSelectedUser(user)
-    }
+        setSelectedUser(user);
+    };
 
     const handleSubmit = async () => {
         if (!name || !projectId || !selectedUser || !description || !dueDate) {
-            toast.error('Veuillez remplir tous les champs obligatoires')
-            return
+            toast.error("Veuillez remplir tous les champs obligatoires");
+            return;
         }
         try {
-            await CreateTask(name, description, dueDate, projectId, email, selectedUser.email)
-            rooter.push(`/project/${projectId}`)
+            await CreateTask(name, description, dueDate, projectId, email, selectedUser.email);
+            router.push(`/project/${projectId}`);
         } catch (error) {
             toast.error("Une erreur est survenue lors de la création de la tâche." + error);
         }
-
-    }
+    };
 
     return (
         <Wrapper>
-            <div >
+            <div>
                 <div className="breadcrumbs text-sm">
                     <ul>
-                        <li><Link href={`/project/${projectId}`}>Retour</Link></li>
                         <li>
-                            <div className='badge badge-primary'>{project?.name}</div>
+                            <Link href={`/project/${projectId}`}>Retour</Link>
                         </li>
-
+                        <li>
+                            <div className="badge badge-primary">{project?.name}</div>
+                        </li>
                     </ul>
                 </div>
 
-                <div className='flex flex-col md:flex-row md:justify-between'>
-                    <div className='md:w-1/4'>
+                <div className="flex flex-col md:flex-row md:justify-between">
+                    <div className="md:w-1/4">
                         <AssignTask users={usersProject} projectId={projectId} onAssignTask={handleUserSelect} />
-                        <div className='flex  justify-between items-center mt-4'>
-                            <span className='badge'>
-                                A livré
-                            </span>
+                        <div className="flex justify-between items-center mt-4">
+                            <span className="badge">A livrer</span>
                             <input
                                 placeholder="Date d'échéance"
-                                className='input input-bordered  border-base-300 '
+                                className="input input-bordered border-base-300"
                                 type="date"
                                 onChange={(e) => setDueDate(new Date(e.target.value))}
                             />
                         </div>
-
                     </div>
-                    <div className='md:w-3/4 mt-4 md:mt-0 md:ml-4 '>
-                        <div className='flex flex-col justify-between w-full'>
+                    <div className="md:w-3/4 mt-4 md:mt-0 md:ml-4">
+                        <div className="flex flex-col justify-between w-full">
                             <input
-                                placeholder='Nom de la tache'
-                                className='w-full input input-bordered border border-base-300 font-bold mb-4'
+                                placeholder="Nom de la tâche"
+                                className="w-full input input-bordered border border-base-300 font-bold mb-4"
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
                             <ReactQuill
-                                placeholder='Decrivez la tâche'
+                                placeholder="Décrivez la tâche"
                                 value={description}
                                 modules={modules}
                                 onChange={setDescription}
                             />
                         </div>
-                        <div className='flex justify-end' onClick={handleSubmit}>
-                            <button className='btn mt-4 btn-md btn-primary'>Créer la tâche</button>
+                        <div className="flex justify-end">
+                            <button className="btn mt-4 btn-md btn-primary" onClick={handleSubmit}>
+                                Créer la tâche
+                            </button>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </Wrapper>
-    )
-}
+    );
+};
 
-export default page
+export default Page;
